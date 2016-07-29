@@ -2,8 +2,8 @@ package com.example.sam.nytimessearch.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -43,7 +43,7 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //setupViews();
+        setupViews();
     }
 
     public void setupViews(){
@@ -57,13 +57,17 @@ public class SearchActivity extends AppCompatActivity {
         // Initialize contacts
         articles = new ArrayList<>();
         // Create adapter passing in the sample user data
-        ArticleArrayAdapter adapter = new ArticleArrayAdapter(this, articles);
+        adapter = new ArticleArrayAdapter(this, articles);
 
         // Attach the adapter to the recyclerview to populate items
         rvResults.setAdapter(adapter);
 
         // Set layout manager to position the items
-        rvResults.setLayoutManager(new LinearLayoutManager(this));
+        // First param is number of columns and second param is orientation i.e Vertical or Horizontal
+        StaggeredGridLayoutManager gridLayoutManager =
+                new StaggeredGridLayoutManager(4, StaggeredGridLayoutManager.VERTICAL);
+// Attach the layout manager to the recycler view
+        rvResults.setLayoutManager(gridLayoutManager);
         // That's all!
 
        /* adapter = new ArticleArrayAdapter(this, articles);
@@ -130,9 +134,8 @@ public class SearchActivity extends AppCompatActivity {
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
                     //adapter.addAll(Article.fromJSONArray(articleJsonResults));
                     articles.addAll(Article.fromJSONArray(articleJsonResults));
-                    Log.d("DEBUG", articles.toString());
+                    //Log.d("DEBUG", articles.toString());
                     adapter.notifyDataSetChanged();
-                 //   Log.d("DEBUG", articles.toString());
                 }
                 catch(JSONException e){
                     e.printStackTrace();
