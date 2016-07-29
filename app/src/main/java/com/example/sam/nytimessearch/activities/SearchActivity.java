@@ -1,17 +1,16 @@
 package com.example.sam.nytimessearch.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridView;
 
 import com.example.sam.nytimessearch.Article;
 import com.example.sam.nytimessearch.ArticleArrayAdapter;
@@ -23,7 +22,6 @@ import com.loopj.android.http.RequestParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -32,7 +30,8 @@ import cz.msebera.android.httpclient.Header;
 public class SearchActivity extends AppCompatActivity {
 
     EditText etQuery;
-    GridView gvResults;
+    RecyclerView rvResults;
+    //GridView gvResults;
     Button btnSearch;
 
     ArrayList<Article> articles;
@@ -44,15 +43,30 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setupViews();
+        //setupViews();
     }
 
     public void setupViews(){
         etQuery = (EditText) findViewById(R.id.etQuery);
-        gvResults = (GridView) findViewById(R.id.gvResults);
         btnSearch = (Button) findViewById(R.id.btnSearch);
+
+
+        // Lookup the recyclerview in activity layout
+        RecyclerView rvResults = (RecyclerView) findViewById(R.id.rvResults);
+
+        // Initialize contacts
         articles = new ArrayList<>();
-        adapter = new ArticleArrayAdapter(this, articles);
+        // Create adapter passing in the sample user data
+        ArticleArrayAdapter adapter = new ArticleArrayAdapter(this, articles);
+
+        // Attach the adapter to the recyclerview to populate items
+        rvResults.setAdapter(adapter);
+
+        // Set layout manager to position the items
+        rvResults.setLayoutManager(new LinearLayoutManager(this));
+        // That's all!
+
+       /* adapter = new ArticleArrayAdapter(this, articles);
         gvResults.setAdapter(adapter);
 
         //hook up listener for grid click
@@ -71,7 +85,7 @@ public class SearchActivity extends AppCompatActivity {
                 //launch the activity
                 startActivity(i);
             }
-        });
+        });*/
     }
 
     @Override
@@ -114,8 +128,11 @@ public class SearchActivity extends AppCompatActivity {
                 JSONArray articleJsonResults = null;
                 try{
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-                    adapter.addAll(Article.fromJSONArray(articleJsonResults));
+                    //adapter.addAll(Article.fromJSONArray(articleJsonResults));
+                    articles.addAll(Article.fromJSONArray(articleJsonResults));
                     Log.d("DEBUG", articles.toString());
+                    adapter.notifyDataSetChanged();
+                 //   Log.d("DEBUG", articles.toString());
                 }
                 catch(JSONException e){
                     e.printStackTrace();
