@@ -14,8 +14,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.example.sam.nytimessearch.Article;
-import com.example.sam.nytimessearch.ArticleArrayAdapter;
+import com.example.sam.nytimessearch.model.Article;
+import com.example.sam.nytimessearch.adapter.ArticleArrayAdapter;
 import com.example.sam.nytimessearch.R;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
