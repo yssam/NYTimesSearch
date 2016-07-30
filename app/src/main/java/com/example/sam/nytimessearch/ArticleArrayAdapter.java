@@ -2,7 +2,6 @@ package com.example.sam.nytimessearch;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +18,17 @@ import java.util.List;
 
 public class ArticleArrayAdapter extends
         RecyclerView.Adapter<ArticleArrayAdapter.ViewHolder> {
+
+    // Define listener member variable
+    private static OnItemClickListener listener;
+    // Define the listener interface
+    public interface OnItemClickListener {
+        void onItemClick(View itemView, int position);
+    }
+    // Define the method that allows the parent activity or fragment to define the listener
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
     // Provide a direct reference to each of the views within a data item
     // Used to cache the views within the item layout for fast access
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -30,13 +40,21 @@ public class ArticleArrayAdapter extends
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
-        public ViewHolder(View itemView) {
+        public ViewHolder(final View itemView) {
             // Stores the itemView in a public final member variable that can be used
             // to access the context from any ViewHolder instance.
             super(itemView);
 
             imageView = (ImageView) itemView.findViewById(R.id.ivImage);
             tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Triggers click upwards to the adapter on click
+                    if (listener != null)
+                        listener.onItemClick(itemView, getLayoutPosition());
+                }
+            });
         }
     }
 
@@ -85,9 +103,13 @@ public class ArticleArrayAdapter extends
         tvTitle.setText(article.getHeadline());
 
         String thumbnail = article.getThumbNail();
-        if(!TextUtils.isEmpty(thumbnail)){
-            Picasso.with(getContext()).load(thumbnail).into(imageView);
-        }
+        //if(!TextUtils.isEmpty(thumbnail)){
+            Picasso.with(getContext())
+                    .load(thumbnail)
+                    .placeholder(R.drawable.ic_nocover)
+                    .error(R.drawable.ic_nocover)
+                    .into(imageView);
+        //}
     }
 
     // Returns the total count of items in the list
@@ -97,47 +119,3 @@ public class ArticleArrayAdapter extends
     }
 
 }
-
-
-/*public class ArticleArrayAdapter extends ArrayAdapter<Article> {
-    public ArticleArrayAdapter(Context context, List<Article> articles){
-        super(context, android.R.layout.simple_expandable_list_item_1, articles);
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        //get the data item for position
-        Article article = this.getItem(position);
-
-
-        //check to see if existing view being reused
-        //not using recycle view -> inflate the layout
-        if(convertView == null){
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.item_article_result, parent, false);
-        }
-
-
-        //find the imageView
-        ImageView imageView = (ImageView) convertView.findViewById(R.id.ivImage);
-
-
-        //clear out the recycled image from convert view from last time
-        imageView.setImageResource(0);
-
-        TextView tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
-        tvTitle.setText(article.getHeadline());
-
-        //populate the thumbnail image
-        //remote download the image in the background
-
-        String thumbnail = article.getThumbNail();
-        if(!TextUtils.isEmpty(thumbnail)){
-            Picasso.with(getContext()).load(thumbnail).into(imageView);
-        }
-
-        return convertView;
-
-    }
-}
-*/

@@ -1,16 +1,18 @@
 package com.example.sam.nytimessearch.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 
 import com.example.sam.nytimessearch.Article;
 import com.example.sam.nytimessearch.ArticleArrayAdapter;
@@ -22,6 +24,7 @@ import com.loopj.android.http.RequestParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -29,10 +32,7 @@ import cz.msebera.android.httpclient.Header;
 
 public class SearchActivity extends AppCompatActivity {
 
-    EditText etQuery;
     RecyclerView rvResults;
-    //GridView gvResults;
-    Button btnSearch;
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
@@ -44,15 +44,13 @@ public class SearchActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setupViews();
+        setupListViewListener();
     }
 
-    public void setupViews(){
-        etQuery = (EditText) findViewById(R.id.etQuery);
-        btnSearch = (Button) findViewById(R.id.btnSearch);
-
+    public void setupViews() {
 
         // Lookup the recyclerview in activity layout
-        RecyclerView rvResults = (RecyclerView) findViewById(R.id.rvResults);
+        rvResults = (RecyclerView) findViewById(R.id.rvResults);
 
         // Initialize contacts
         articles = new ArrayList<>();
@@ -66,57 +64,58 @@ public class SearchActivity extends AppCompatActivity {
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
         StaggeredGridLayoutManager gridLayoutManager =
                 new StaggeredGridLayoutManager(4, StaggeredGridLayoutManager.VERTICAL);
-// Attach the layout manager to the recycler view
+        // Attach the layout manager to the recycler view
         rvResults.setLayoutManager(gridLayoutManager);
         // That's all!
 
-       /* adapter = new ArticleArrayAdapter(this, articles);
-        gvResults.setAdapter(adapter);
-
-        //hook up listener for grid click
-        gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
-                //create an intent to display the article
-                Intent i = new Intent(getApplicationContext(), ArticleActivity.class);
-
-                //get the article to display
-                Article article = articles.get(pos);
-
-                //pass in that article into intent
-                i.putExtra("article", Parcels.wrap(article));
-
-                //launch the activity
-                startActivity(i);
-            }
-        });*/
     }
 
+    private void setupListViewListener(){
+        adapter.setOnItemClickListener(new ArticleArrayAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                //first parameter is the context, second is the class of the activity to launch
+                Intent intent = new Intent(SearchActivity.this, ArticleActivity.class);
+                Article article = articles.get(position);
+                //Log.d("DEBUG", article.toString());
+                intent.putExtra("article", Parcels.wrap(article));
+                startActivity(intent);
+                return;
+            }
+        });
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_search, menu);
-        return true;
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_search, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // perform query here
+                fetchArticles(query);
+
+                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
+                // see https://code.google.com/p/android/issues/detail?id=24599
+                searchView.clearFocus();
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void onArticleSearch(View view) {
-        String query = etQuery.getText().toString();
-
+    // Executes an API call to the OpenLibrary search endpoint, parses the results
+    // Converts them into an array of book objects and adds them to the adapter
+    private void fetchArticles(String query) {
         //Toast.makeText(this, "Searching for " + query, Toast.LENGTH_LONG).show();
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "http://api.nytimes.com/svc/search/v2/articlesearch.json";
@@ -133,8 +132,9 @@ public class SearchActivity extends AppCompatActivity {
                 try{
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
                     //adapter.addAll(Article.fromJSONArray(articleJsonResults));
+                    articles.clear();
                     articles.addAll(Article.fromJSONArray(articleJsonResults));
-                    //Log.d("DEBUG", articles.toString());
+                    Log.d("DEBUG", articles.toString());
                     adapter.notifyDataSetChanged();
                 }
                 catch(JSONException e){
