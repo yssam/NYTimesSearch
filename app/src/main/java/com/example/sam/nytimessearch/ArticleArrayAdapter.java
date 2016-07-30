@@ -12,6 +12,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by Sam on 7/26/16.
  */
@@ -34,8 +37,8 @@ public class ArticleArrayAdapter extends
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
-        public ImageView imageView;
-        public TextView tvTitle;
+        @BindView(R.id.ivImage) ImageView imageView;
+        @BindView(R.id.tvTitle) TextView tvTitle;
 
 
         // We also create a constructor that accepts the entire item row
@@ -44,9 +47,7 @@ public class ArticleArrayAdapter extends
             // Stores the itemView in a public final member variable that can be used
             // to access the context from any ViewHolder instance.
             super(itemView);
-
-            imageView = (ImageView) itemView.findViewById(R.id.ivImage);
-            tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+            ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

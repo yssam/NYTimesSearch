@@ -28,11 +28,14 @@ import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
 public class SearchActivity extends AppCompatActivity {
 
-    RecyclerView rvResults;
+    @BindView(R.id.rvResults) RecyclerView rvResults;
+    @BindView(R.id.toolbar) Toolbar toolbar;
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
@@ -41,17 +44,13 @@ public class SearchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         setupViews();
         setupListViewListener();
     }
 
     public void setupViews() {
-
-        // Lookup the recyclerview in activity layout
-        rvResults = (RecyclerView) findViewById(R.id.rvResults);
-
         // Initialize contacts
         articles = new ArrayList<>();
         // Create adapter passing in the sample user data
