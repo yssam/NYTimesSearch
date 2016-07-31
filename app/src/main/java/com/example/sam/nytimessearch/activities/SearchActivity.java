@@ -211,6 +211,10 @@ public class SearchActivity extends AppCompatActivity {
     // Converts them into an array of book objects and adds them to the adapter
     private void fetchArticles(Query query, final int page) {
         //Toast.makeText(this, "Searching for " + query, Toast.LENGTH_LONG).show();
+        if(page == 0){//early cleanup
+            articles.clear();
+            adapter.notifyDataSetChanged();
+        }
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "http://api.nytimes.com/svc/search/v2/articlesearch.json";
         RequestParams params = new RequestParams();
@@ -230,7 +234,6 @@ public class SearchActivity extends AppCompatActivity {
                 try {
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
                     if(page == 0){
-                        articles.clear();
                         articles.addAll(Article.fromJSONArray(articleJsonResults));
                         Log.d("DEBUG", articles.toString());
                         adapter.notifyDataSetChanged();
