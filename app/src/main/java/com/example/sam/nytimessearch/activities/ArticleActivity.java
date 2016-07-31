@@ -32,7 +32,7 @@ public class ArticleActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        Article article = (Article) Parcels.unwrap(getIntent().getParcelableExtra("article"));
+        Article article = Parcels.unwrap(getIntent().getParcelableExtra("article"));
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url){

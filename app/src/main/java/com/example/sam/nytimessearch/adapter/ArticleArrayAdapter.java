@@ -32,7 +32,7 @@ public class ArticleArrayAdapter extends
     }
     // Define the method that allows the parent activity or fragment to define the listener
     public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
+        ArticleArrayAdapter.listener = listener;
     }
     // Provide a direct reference to each of the views within a data item
     // Used to cache the views within the item layout for fast access
@@ -41,7 +41,7 @@ public class ArticleArrayAdapter extends
         // for any view that will be set as you render a row
         @BindView(R.id.ivImage) ImageView imageView;
         @BindView(R.id.tvTitle) TextView tvTitle;
-        @BindView(R.id.tvDate) TextView tvDate;
+        //@BindView(R.id.tvDate) TextView tvDate;
 
 
         // We also create a constructor that accepts the entire item row
@@ -106,9 +106,9 @@ public class ArticleArrayAdapter extends
 
         tvTitle.setText(article.getHeadline());
 
-        TextView tvDate = viewHolder.tvDate;
+        //TextView tvDate = viewHolder.tvDate;
 
-        tvDate.setText(article.getDate());
+        //tvDate.setText(article.getDate());
 
         String thumbnail = article.getThumbNail();
             Picasso.with(getContext())

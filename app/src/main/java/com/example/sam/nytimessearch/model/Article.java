@@ -41,7 +41,8 @@ public class Article {
         try{
             this.webUrl = jsonObject.getString("web_url");
             this.headline = jsonObject.getJSONObject("headline").getString("main");
-            this.date = jsonObject.getString("pub_date").substring(0, 10);
+            String pub_date = jsonObject.getString("pub_date");
+            this.date = pub_date.substring(0, Math.min(pub_date.length(), 10));
 
             JSONArray multimedia = jsonObject.getJSONArray("multimedia");
 

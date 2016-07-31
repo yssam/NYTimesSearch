@@ -17,8 +17,7 @@
         android:text="TextView"
         android:maxLines="2"
         android:ellipsize="end"
-        android:textAppearance="@android:style/TextAppearance.Material.Medium"
-        tools:targetApi="lollipop" />
+     />
 
     <TextView
         android:layout_width="wrap_content"

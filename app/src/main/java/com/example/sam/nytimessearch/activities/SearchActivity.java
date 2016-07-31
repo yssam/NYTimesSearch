@@ -68,6 +68,7 @@ public class SearchActivity extends AppCompatActivity {
         setupViews();
         setupListViewListener();
         query = new Query();
+        fetchArticles(query, 0);
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client2 = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
@@ -90,8 +91,16 @@ public class SearchActivity extends AppCompatActivity {
         rvResults.setLayoutManager(gridLayoutManager);
         // That's all!
 
-    }
+        rvResults.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                fetchArticles(query, page);
+            }
+        });
 
+    }
 
     private void setupListViewListener() {
         adapter.setOnItemClickListener(new ArticleArrayAdapter.OnItemClickListener() {
@@ -130,7 +139,7 @@ public class SearchActivity extends AppCompatActivity {
                     public boolean onQueryTextSubmit(String q) {
                         // perform query here
                         query.setQ(q);
-                        fetchArticles(query);
+                        fetchArticles(query, 0);
 
                         // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
                         // see https://code.google.com/p/android/issues/detail?id=24599
@@ -178,7 +187,7 @@ public class SearchActivity extends AppCompatActivity {
                                                  **/
                                                 if(which == 0) query.setSort("newest");
                                                 else query.setSort("oldest");
-                                                fetchArticles(query);
+                                                fetchArticles(query, 0);
                                                 return true;
                                             }
                                         })
@@ -200,13 +209,13 @@ public class SearchActivity extends AppCompatActivity {
 
     // Executes an API call to the OpenLibrary search endpoint, parses the results
     // Converts them into an array of book objects and adds them to the adapter
-    private void fetchArticles(Query query) {
+    private void fetchArticles(Query query, final int page) {
         //Toast.makeText(this, "Searching for " + query, Toast.LENGTH_LONG).show();
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "http://api.nytimes.com/svc/search/v2/articlesearch.json";
         RequestParams params = new RequestParams();
         params.put("api-key", "4976251588704a209f2432f634e21445");
-        params.put("page", 0);
+        params.put("page", page);
         params.put("q", query.getQ());
         if (!TextUtils.isEmpty(query.getBegin_date()))
             params.put("begin_date", query.getBegin_date());
@@ -220,11 +229,18 @@ public class SearchActivity extends AppCompatActivity {
                 JSONArray articleJsonResults = null;
                 try {
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-                    //adapter.addAll(Article.fromJSONArray(articleJsonResults));
-                    articles.clear();
-                    articles.addAll(Article.fromJSONArray(articleJsonResults));
-                    Log.d("DEBUG", articles.toString());
-                    adapter.notifyDataSetChanged();
+                    if(page == 0){
+                        articles.clear();
+                        articles.addAll(Article.fromJSONArray(articleJsonResults));
+                        Log.d("DEBUG", articles.toString());
+                        adapter.notifyDataSetChanged();
+                    }
+                    else {
+                        int curSize = adapter.getItemCount();
+                        articles.addAll(Article.fromJSONArray(articleJsonResults));
+                        adapter.notifyItemRangeInserted(curSize, articles.size() - 1);
+                    }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
