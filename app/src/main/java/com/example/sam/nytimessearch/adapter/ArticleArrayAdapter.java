@@ -106,13 +106,11 @@ public class ArticleArrayAdapter extends
         tvTitle.setText(article.getHeadline());
 
         String thumbnail = article.getThumbNail();
-        //if(!TextUtils.isEmpty(thumbnail)){
             Picasso.with(getContext())
                     .load(thumbnail)
                     .placeholder(R.drawable.ic_nocover)
                     .error(R.drawable.ic_nocover)
                     .into(imageView);
-        //}
     }
 
     // Returns the total count of items in the list

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.SearchActivity">
     <item android:id="@+id/action_search"
-        android:orderInCategory="5"
+
         android:title="Search"
         android:icon="@drawable/ic_search_black_24dp"
         app:showAsAction="ifRoom|collapseActionView"
@@ -12,6 +12,6 @@
     <item android:id="@+id/action_filter"
         android:title="Filter"
         android:icon="@drawable/ic_filter_list_black_24dp"
-        app:actionViewClass="android.support.v7.widget.SearchView" />
+        app:showAsAction="ifRoom" />
 
 </menu>
