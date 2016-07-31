@@ -7,8 +7,7 @@ import android.text.TextUtils;
  */
 
 public class Query {
-    String q;
-    String fq;
+
 
     public String getSort() {
         return sort;
@@ -26,9 +25,28 @@ public class Query {
         return begin_date;
     }
 
+    String q;
+    String fq;
     String begin_date;
-    String sort;
 
+    public void setSort(String sort) {
+        this.sort = sort;
+    }
+
+    public void setQ(String q) {
+        this.q = q;
+    }
+
+    public void setFq(String fq) {
+        this.fq = fq;
+    }
+
+    public void setBegin_date(String begin_date) {
+        this.begin_date = begin_date;
+    }
+
+    String sort;
+    public Query() {}
     public Query(String q, String fq, String begin_date, String sort){
         try{
             if(!TextUtils.isEmpty(q))

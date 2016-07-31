@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.sam.nytimessearch.model.Article;
 import com.example.sam.nytimessearch.R;
+import com.example.sam.nytimessearch.model.Article;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -41,6 +41,7 @@ public class ArticleArrayAdapter extends
         // for any view that will be set as you render a row
         @BindView(R.id.ivImage) ImageView imageView;
         @BindView(R.id.tvTitle) TextView tvTitle;
+        @BindView(R.id.tvDate) TextView tvDate;
 
 
         // We also create a constructor that accepts the entire item row
@@ -105,11 +106,15 @@ public class ArticleArrayAdapter extends
 
         tvTitle.setText(article.getHeadline());
 
+        TextView tvDate = viewHolder.tvDate;
+
+        tvDate.setText(article.getDate());
+
         String thumbnail = article.getThumbNail();
             Picasso.with(getContext())
                     .load(thumbnail)
-                    .placeholder(R.drawable.ic_nocover)
-                    .error(R.drawable.ic_nocover)
+                    .placeholder(R.mipmap.ic_launcher)
+                    .error(R.mipmap.ic_launcher)
                     .into(imageView);
     }
 
