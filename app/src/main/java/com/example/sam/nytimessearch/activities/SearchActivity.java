@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.astuetz.PagerSlidingTabStrip;
+import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
 import com.example.sam.nytimessearch.PageFragment;
 import com.example.sam.nytimessearch.R;
 import com.example.sam.nytimessearch.adapter.ArticleArrayAdapter;
@@ -32,18 +33,21 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.parceler.Parcels;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.example.sam.nytimessearch.R.array.sortItems;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity implements CalendarDatePickerDialogFragment.OnDateSetListener{
 
     @BindView(R.id.rvResults) RecyclerView rvResults;
     @BindView(R.id.toolbar) Toolbar toolbar;
     Query query;
+    private static final String TAG_CODE = "2431"; // DialogFragment Tag
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
@@ -210,9 +214,17 @@ public class SearchActivity extends AppCompatActivity {
                                         .negativeText(R.string.cancel)
                                         .show();
                             break;
-                            case 1: //News desk
-                            break;
-                            case 2: //begin date
+                            case 1: //begin date
+                                Calendar cal = Calendar.getInstance();
+                                CalendarDatePickerDialogFragment cdp =
+                                        new CalendarDatePickerDialogFragment()
+                                                //.setThemeCustom(R.style.DateTheme)
+                                                .setOnDateSetListener(SearchActivity.this)
+                                                .setPreselectedDate(cal.get(Calendar.YEAR),
+                                                        cal.get(Calendar.MONTH),
+                                                        cal.get(Calendar.DATE));
+                                cdp.show(getSupportFragmentManager(), TAG_CODE);
+
                             break;
                             default:
                             break;
@@ -257,5 +269,25 @@ public class SearchActivity extends AppCompatActivity {
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         AppIndex.AppIndexApi.end(client2, getIndexApiAction());
         client2.disconnect();
+    }
+
+    @Override
+    public void onDateSet(CalendarDatePickerDialogFragment dialog,
+                          int year,
+                          int monthOfYear,
+                          int dayOfMonth) {
+        // TODO: try other libraries instead of android-betterpickers
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, monthOfYear, dayOfMonth);
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+        String formattedDate = df.format(cal.getTime());
+        Toast.makeText(SearchActivity.this,
+                "time =  " + formattedDate, Toast.LENGTH_SHORT).show();
+
+        int vpCurrent = viewPager.getCurrentItem();
+        PageFragment pageFragment = (PageFragment) adapterViewPager.getRegisteredFragment(vpCurrent);
+        query = pageFragment.getQuery();
+        query.setBegin_date(formattedDate);
+        pageFragment.setQuery(query);
     }
 }

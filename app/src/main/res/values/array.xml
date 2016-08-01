@@ -2,7 +2,6 @@
 <resources>
     <string-array name="filterItems">
         <item>Sort</item>
-        <item>News Desk</item>
         <item>Begin Date</item>
     </string-array>
 

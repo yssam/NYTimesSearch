@@ -38,4 +38,5 @@ dependencies {
     compile 'com.afollestad.material-dialogs:commons:0.8.6.2'
     compile 'com.google.android.gms:play-services-appindexing:8.4.0'
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+    compile 'com.code-troopers.betterpickers:library:3.0.0'
 }
