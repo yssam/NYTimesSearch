@@ -17,12 +17,14 @@
         android:text="TextView"
         android:maxLines="2"
         android:ellipsize="end"
+        android:textColor="@android:color/white"
      />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
-        android:id="@+id/tvDate" />
+        android:id="@+id/tvDate"
+        android:textColor="@android:color/white"/>
 
 </LinearLayout>

@@ -3,11 +3,12 @@ package com.example.sam.nytimessearch.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,8 +19,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.astuetz.PagerSlidingTabStrip;
 import com.example.sam.nytimessearch.R;
 import com.example.sam.nytimessearch.adapter.ArticleArrayAdapter;
+import com.example.sam.nytimessearch.adapter.searchFragmentPagerAdapter;
 import com.example.sam.nytimessearch.model.Article;
 import com.example.sam.nytimessearch.model.Query;
 import com.google.android.gms.appindexing.Action;
@@ -45,14 +48,13 @@ import static com.example.sam.nytimessearch.R.array.sortItems;
 
 public class SearchActivity extends AppCompatActivity {
 
-    @BindView(R.id.rvResults)
-    RecyclerView rvResults;
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
+    @BindView(R.id.rvResults) RecyclerView rvResults;
+    @BindView(R.id.toolbar) Toolbar toolbar;
     Query query;
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
+    FragmentPagerAdapter adapterViewPager;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -66,16 +68,17 @@ public class SearchActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         setupViews();
-        setupListViewListener();
+        /*setupListViewListener();
         query = new Query();
         fetchArticles(query, 0);
+        */
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client2 = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     public void setupViews() {
-        // Initialize contacts
+    /*    // Initialize contacts
         articles = new ArrayList<>();
         // Create adapter passing in the sample user data
         adapter = new ArticleArrayAdapter(this, articles);
@@ -97,6 +100,43 @@ public class SearchActivity extends AppCompatActivity {
                 // Triggered only when new data needs to be appended to the list
                 // Add whatever code is needed to append new items to the bottom of the list
                 fetchArticles(query, page);
+            }
+        });
+
+**/
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setClipToPadding(false);
+        viewPager.setPageMargin(12);
+        adapterViewPager = new searchFragmentPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(adapterViewPager);
+
+        // Give the PagerSlidingTabStrip the ViewPager
+        PagerSlidingTabStrip tabsStrip = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        // Attach the view pager to the tab strip
+        tabsStrip.setViewPager(viewPager);
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            // This method will be invoked when a new page becomes selected.
+            @Override
+            public void onPageSelected(int position) {
+                Toast.makeText(SearchActivity.this,
+                        "Selected page position: " + position, Toast.LENGTH_SHORT).show();
+            }
+
+            // This method will be invoked when the current page is scrolled
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                // Code goes here
+                System.out.println("positionOffset="+positionOffset);
+            }
+
+            // Called when the scroll state changes:
+            // SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                // Code goes here
             }
         });
 

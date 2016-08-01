@@ -73,6 +73,7 @@ public class ArticleArrayAdapter extends
         mContext = context;
     }
 
+
     // Easy access to the context object in the recyclerview
     private Context getContext() {
         return mContext;
