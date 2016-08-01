@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -153,6 +154,11 @@ public class SearchActivity extends AppCompatActivity implements CalendarDatePic
                     @Override
                     public boolean onQueryTextSubmit(String q) {
                         // perform query here
+                        final MaterialDialog md = new MaterialDialog.Builder(SearchActivity.this)
+                                .title("Progress Dialog")
+                                .content("Please wait for a while...")
+                                .progress(true, 0)
+                                .show();
                         int vpCurrent = viewPager.getCurrentItem();
                         PageFragment pageFragment = (PageFragment) adapterViewPager.getRegisteredFragment(vpCurrent);
                         query = pageFragment.getQuery();
@@ -162,7 +168,13 @@ public class SearchActivity extends AppCompatActivity implements CalendarDatePic
                         // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
                         // see https://code.google.com/p/android/issues/detail?id=24599
                         searchView.clearFocus();
-
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
+                                // Actions to do after 10 seconds
+                                md.dismiss();
+                            }
+                        }, 1000);
                         return true;
                     }
 
@@ -203,6 +215,11 @@ public class SearchActivity extends AppCompatActivity implements CalendarDatePic
                                                  * If you use alwaysCallSingleChoiceCallback(), which is discussed below,
                                                  * returning false here won't allow the newly selected radio button to actually be selected.
                                                  **/
+                                                final MaterialDialog md = new MaterialDialog.Builder(SearchActivity.this)
+                                                        .title("Progress Dialog")
+                                                        .content("Please wait for a while...")
+                                                        .progress(true, 0)
+                                                        .show();
                                                 int vpCurrent = viewPager.getCurrentItem();
                                                 PageFragment pageFragment = (PageFragment) adapterViewPager.getRegisteredFragment(vpCurrent);
                                                 if(which == 0){
@@ -215,6 +232,13 @@ public class SearchActivity extends AppCompatActivity implements CalendarDatePic
                                                     query.setSort("oldest");
                                                     pageFragment.setQuery(query);
                                                 }
+                                                Handler handler = new Handler();
+                                                handler.postDelayed(new Runnable() {
+                                                    public void run() {
+                                                        // Actions to do after 10 seconds
+                                                        md.dismiss();
+                                                    }
+                                                }, 1000);
                                                 return true;
                                             }
                                         })
@@ -285,6 +309,11 @@ public class SearchActivity extends AppCompatActivity implements CalendarDatePic
                           int monthOfYear,
                           int dayOfMonth) {
         // TODO: try other libraries instead of android-betterpickers
+        final MaterialDialog md = new MaterialDialog.Builder(this)
+                .title("Progress Dialog")
+                .content("Please wait for a while...")
+                .progress(true, 0)
+                .show();
         Calendar cal = Calendar.getInstance();
         cal.set(year, monthOfYear, dayOfMonth);
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
@@ -297,6 +326,14 @@ public class SearchActivity extends AppCompatActivity implements CalendarDatePic
         query = pageFragment.getQuery();
         query.setBegin_date(formattedDate);
         pageFragment.setQuery(query);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                // Actions to do after 10 seconds
+                md.dismiss();
+            }
+        }, 1000);
+
     }
 
     private Boolean isNetworkAvailable() {
