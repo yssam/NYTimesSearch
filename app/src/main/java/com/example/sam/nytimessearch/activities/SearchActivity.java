@@ -1,6 +1,9 @@
 package com.example.sam.nytimessearch.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
@@ -33,6 +36,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.parceler.Parcels;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -66,6 +70,10 @@ public class SearchActivity extends AppCompatActivity implements CalendarDatePic
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         setupViews();
+        Toast.makeText(SearchActivity.this,
+                "is network available: " + isNetworkAvailable(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(SearchActivity.this,
+                "is online: " + isOnline(), Toast.LENGTH_SHORT).show();
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client2 = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
@@ -289,5 +297,23 @@ public class SearchActivity extends AppCompatActivity implements CalendarDatePic
         query = pageFragment.getQuery();
         query.setBegin_date(formattedDate);
         pageFragment.setQuery(query);
+    }
+
+    private Boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+    }
+
+    public boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        } catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
+        return false;
     }
 }
