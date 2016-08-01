@@ -98,8 +98,7 @@ public class SearchActivity extends AppCompatActivity implements CalendarDatePic
             // This method will be invoked when a new page becomes selected.
             @Override
             public void onPageSelected(int position) {
-                Toast.makeText(SearchActivity.this,
-                        "Selected page position: " + position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(SearchActivity.this, "Selected page position: " + position, Toast.LENGTH_SHORT).show();
             }
 
             // This method will be invoked when the current page is scrolled
