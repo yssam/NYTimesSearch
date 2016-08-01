@@ -41,7 +41,7 @@ public class ArticleArrayAdapter extends
         // for any view that will be set as you render a row
         @BindView(R.id.ivImage) ImageView imageView;
         @BindView(R.id.tvTitle) TextView tvTitle;
-        //@BindView(R.id.tvDate) TextView tvDate;
+        @BindView(R.id.tvDate) TextView tvDate;
 
 
         // We also create a constructor that accepts the entire item row
@@ -107,9 +107,9 @@ public class ArticleArrayAdapter extends
 
         tvTitle.setText(article.getHeadline());
 
-        //TextView tvDate = viewHolder.tvDate;
+        TextView tvDate = viewHolder.tvDate;
 
-        //tvDate.setText(article.getDate());
+        tvDate.setText(article.getDate());
 
         String thumbnail = article.getThumbNail();
             Picasso.with(getContext())

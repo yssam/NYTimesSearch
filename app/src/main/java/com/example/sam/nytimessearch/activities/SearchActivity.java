@@ -3,14 +3,12 @@ package com.example.sam.nytimessearch.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,8 +18,10 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.astuetz.PagerSlidingTabStrip;
+import com.example.sam.nytimessearch.PageFragment;
 import com.example.sam.nytimessearch.R;
 import com.example.sam.nytimessearch.adapter.ArticleArrayAdapter;
+import com.example.sam.nytimessearch.adapter.SmartFragmentStatePagerAdapter;
 import com.example.sam.nytimessearch.adapter.searchFragmentPagerAdapter;
 import com.example.sam.nytimessearch.model.Article;
 import com.example.sam.nytimessearch.model.Query;
@@ -29,20 +29,13 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cz.msebera.android.httpclient.Header;
 
 import static com.example.sam.nytimessearch.R.array.sortItems;
 
@@ -54,7 +47,8 @@ public class SearchActivity extends AppCompatActivity {
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
-    FragmentPagerAdapter adapterViewPager;
+    ViewPager viewPager;
+    private SmartFragmentStatePagerAdapter adapterViewPager;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -68,44 +62,14 @@ public class SearchActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         setupViews();
-        /*setupListViewListener();
-        query = new Query();
-        fetchArticles(query, 0);
-        */
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client2 = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     public void setupViews() {
-    /*    // Initialize contacts
-        articles = new ArrayList<>();
-        // Create adapter passing in the sample user data
-        adapter = new ArticleArrayAdapter(this, articles);
-
-        // Attach the adapter to the recyclerview to populate items
-        rvResults.setAdapter(adapter);
-
-        // Set layout manager to position the items
-        // First param is number of columns and second param is orientation i.e Vertical or Horizontal
-        StaggeredGridLayoutManager gridLayoutManager =
-                new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
-        // Attach the layout manager to the recycler view
-        rvResults.setLayoutManager(gridLayoutManager);
-        // That's all!
-
-        rvResults.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount) {
-                // Triggered only when new data needs to be appended to the list
-                // Add whatever code is needed to append new items to the bottom of the list
-                fetchArticles(query, page);
-            }
-        });
-
-**/
         // Get the ViewPager and set it's PagerAdapter so that it can display items
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setClipToPadding(false);
         viewPager.setPageMargin(12);
         adapterViewPager = new searchFragmentPagerAdapter(getSupportFragmentManager());
@@ -129,7 +93,6 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 // Code goes here
-                System.out.println("positionOffset="+positionOffset);
             }
 
             // Called when the scroll state changes:
@@ -178,8 +141,11 @@ public class SearchActivity extends AppCompatActivity {
                     @Override
                     public boolean onQueryTextSubmit(String q) {
                         // perform query here
+                        int vpCurrent = viewPager.getCurrentItem();
+                        PageFragment pageFragment = (PageFragment) adapterViewPager.getRegisteredFragment(vpCurrent);
+                        query = pageFragment.getQuery();
                         query.setQ(q);
-                        fetchArticles(query, 0);
+                        pageFragment.setQuery(query);
 
                         // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
                         // see https://code.google.com/p/android/issues/detail?id=24599
@@ -225,9 +191,18 @@ public class SearchActivity extends AppCompatActivity {
                                                  * If you use alwaysCallSingleChoiceCallback(), which is discussed below,
                                                  * returning false here won't allow the newly selected radio button to actually be selected.
                                                  **/
-                                                if(which == 0) query.setSort("newest");
-                                                else query.setSort("oldest");
-                                                fetchArticles(query, 0);
+                                                int vpCurrent = viewPager.getCurrentItem();
+                                                PageFragment pageFragment = (PageFragment) adapterViewPager.getRegisteredFragment(vpCurrent);
+                                                if(which == 0){
+                                                    query = pageFragment.getQuery();
+                                                    query.setSort("newest");
+                                                    pageFragment.setQuery(query);
+                                                }
+                                                else{
+                                                    query = pageFragment.getQuery();
+                                                    query.setSort("oldest");
+                                                    pageFragment.setQuery(query);
+                                                }
                                                 return true;
                                             }
                                         })
@@ -247,49 +222,6 @@ public class SearchActivity extends AppCompatActivity {
                 .show();
     }
 
-    // Executes an API call to the OpenLibrary search endpoint, parses the results
-    // Converts them into an array of book objects and adds them to the adapter
-    private void fetchArticles(Query query, final int page) {
-        //Toast.makeText(this, "Searching for " + query, Toast.LENGTH_LONG).show();
-        if(page == 0){//early cleanup
-            articles.clear();
-            adapter.notifyDataSetChanged();
-        }
-        AsyncHttpClient client = new AsyncHttpClient();
-        String url = "http://api.nytimes.com/svc/search/v2/articlesearch.json";
-        RequestParams params = new RequestParams();
-        params.put("api-key", "4976251588704a209f2432f634e21445");
-        params.put("page", page);
-        params.put("q", query.getQ());
-        if (!TextUtils.isEmpty(query.getBegin_date()))
-            params.put("begin_date", query.getBegin_date());
-        if (!TextUtils.isEmpty(query.getSort())) params.put("sort", query.getSort());
-        if (!TextUtils.isEmpty(query.getFq())) params.put("fq", query.getFq());
-        client.get(url, params, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                super.onSuccess(statusCode, headers, response);
-                Log.d("DEBUG", response.toString());
-                JSONArray articleJsonResults = null;
-                try {
-                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-                    if(page == 0){
-                        articles.addAll(Article.fromJSONArray(articleJsonResults));
-                        Log.d("DEBUG", articles.toString());
-                        adapter.notifyDataSetChanged();
-                    }
-                    else {
-                        int curSize = adapter.getItemCount();
-                        articles.addAll(Article.fromJSONArray(articleJsonResults));
-                        adapter.notifyItemRangeInserted(curSize, articles.size() - 1);
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.

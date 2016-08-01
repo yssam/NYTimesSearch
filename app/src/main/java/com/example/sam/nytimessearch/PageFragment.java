@@ -38,6 +38,17 @@ public class PageFragment extends Fragment {
     RecyclerView rvResults;
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
+
+    public void setQuery(Query query) {
+        this.query = query;
+        //also fetchArticles
+        fetchArticles(this.query, 0);
+    }
+
+    public Query getQuery() {
+        return query;
+    }
+
     Query query;
     private int mPage;
 
@@ -84,7 +95,7 @@ public class PageFragment extends Fragment {
         // Set layout manager to position the items
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
         StaggeredGridLayoutManager gridLayoutManager =
-                new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL);
+                new StaggeredGridLayoutManager(4, StaggeredGridLayoutManager.VERTICAL);
         // Attach the layout manager to the recycler view
         rvResults.setLayoutManager(gridLayoutManager);
         // That's all!
@@ -130,7 +141,18 @@ public class PageFragment extends Fragment {
         if (!TextUtils.isEmpty(query.getBegin_date()))
             params.put("begin_date", query.getBegin_date());
         if (!TextUtils.isEmpty(query.getSort())) params.put("sort", query.getSort());
-        if (!TextUtils.isEmpty(query.getFq())) params.put("fq", query.getFq());
+        switch(getArguments().getInt(ARG_PAGE)){
+            case 1:
+                break;
+            case 2:
+                params.put("fq", "news_desk:(\"Politics\")");
+                break;
+            case 3:
+                params.put("fq", "news_desk:(\"Technology\")");
+                break;
+            default:
+                break;
+        }
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

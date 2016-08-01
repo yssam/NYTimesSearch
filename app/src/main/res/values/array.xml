@@ -10,4 +10,10 @@
         <item>newest</item>
         <item>oldest</item>
     </string-array>
+
+    <string-array name="tabItems">
+        <item>All</item>
+        <item>Politics</item>
+        <item>Technology</item>
+    </string-array>
 </resources>
